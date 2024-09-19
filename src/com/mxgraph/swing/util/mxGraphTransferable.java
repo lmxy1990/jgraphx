@@ -445,7 +445,6 @@ public class mxGraphTransferable implements Transferable, UIResource,
         try {
             dataFlavor = new DataFlavor(DataFlavor.javaSerializedObjectMimeType
                     + "; class=com.mxgraph.swing.util.mxGraphTransferable", null, mxCellHandler.class.getClassLoader());
-            System.out.println(dataFlavor);
         } catch (ClassNotFoundException e) {
             log.log(Level.SEVERE, "Error initializing dataFlavor", e);
         }
