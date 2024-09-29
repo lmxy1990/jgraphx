@@ -20,308 +20,273 @@ import com.mxgraph.view.mxGraph;
 /**
  * Provides animation effects.
  */
-public class mxMorphing extends mxAnimation
-{
+public class mxMorphing extends mxAnimation {
 
-	/**
-	 * Reference to the enclosing graph instance.
-	 */
-	protected mxGraphComponent graphComponent;
+    /**
+     * Reference to the enclosing graph instance.
+     */
+    protected mxGraphComponent graphComponent;
 
-	/**
-	 * Specifies the maximum number of steps for the morphing. Default is
-	 * 6.
-	 */
-	protected int steps;
+    /**
+     * Specifies the maximum number of steps for the morphing. Default is
+     * 6.
+     */
+    protected int steps;
 
-	/**
-	 * Counts the current number of steps of the animation.
-	 */
-	protected int step;
+    /**
+     * Counts the current number of steps of the animation.
+     */
+    protected int step;
 
-	/**
-	 * Ease-off for movement towards the given vector. Larger values are
-	 * slower and smoother. Default is 1.5.
-	 */
-	protected double ease;
+    /**
+     * Ease-off for movement towards the given vector. Larger values are
+     * slower and smoother. Default is 1.5.
+     */
+    protected double ease;
 
-	/**
-	 * Maps from cells to origins. 
-	 */
-	protected Map<Object, mxPoint> origins = new HashMap<Object, mxPoint>();
+    /**
+     * Maps from cells to origins.
+     */
+    protected Map<Object, mxPoint> origins = new HashMap<Object, mxPoint>();
 
-	/**
-	 * Optional array of cells to limit the animation to. 
-	 */
-	protected Object[] cells;
+    /**
+     * Optional array of cells to limit the animation to.
+     */
+    protected Object[] cells;
 
-	/**
-	 * 
-	 */
-	protected transient mxRectangle dirty;
+    /**
+     *
+     */
+    protected transient mxRectangle dirty;
 
-	/**
-	 * 
-	 */
-	protected transient mxCellStatePreview preview;
+    /**
+     *
+     */
+    protected transient mxCellStatePreview preview;
 
-	/**
-	 * Constructs a new morphing instance for the given graph.
-	 */
-	public mxMorphing(mxGraphComponent graphComponent)
-	{
-		this(graphComponent, 6, 1.5, DEFAULT_DELAY);
+    /**
+     * Constructs a new morphing instance for the given graph.
+     */
+    public mxMorphing(mxGraphComponent graphComponent) {
+        this(graphComponent, 6, 1.5, DEFAULT_DELAY);
 
-		// Installs the paint handler
-		graphComponent.addListener(mxEvent.AFTER_PAINT, new mxIEventListener()
-		{
-			public void invoke(Object sender, mxEventObject evt)
-			{
-				Graphics g = (Graphics) evt.getProperty("g");
-				paint(g);
-			}
-		});
-	}
+        // Installs the paint handler
+        graphComponent.addListener(mxEvent.AFTER_PAINT, new mxIEventListener() {
+            public void invoke(Object sender, mxEventObject evt) {
+                Graphics g = (Graphics) evt.getProperty("g");
+                paint(g);
+            }
+        });
+    }
 
-	/**
-	 * Constructs a new morphing instance for the given graph.
-	 */
-	public mxMorphing(mxGraphComponent graphComponent, int steps, double ease,
-			int delay)
-	{
-		super(delay);
-		this.graphComponent = graphComponent;
-		this.steps = steps;
-		this.ease = ease;
-	}
+    /**
+     * Constructs a new morphing instance for the given graph.
+     */
+    public mxMorphing(mxGraphComponent graphComponent, int steps, double ease,
+                      int delay) {
+        super(delay);
+        this.graphComponent = graphComponent;
+        this.steps = steps;
+        this.ease = ease;
+    }
 
-	/**
-	 * Returns the number of steps for the animation.
-	 */
-	public int getSteps()
-	{
-		return steps;
-	}
+    /**
+     * Returns the number of steps for the animation.
+     */
+    public int getSteps() {
+        return steps;
+    }
 
-	/**
-	 * Sets the number of steps for the animation.
-	 */
-	public void setSteps(int value)
-	{
-		steps = value;
-	}
+    /**
+     * Sets the number of steps for the animation.
+     */
+    public void setSteps(int value) {
+        steps = value;
+    }
 
-	/**
-	 * Returns the easing for the movements.
-	 */
-	public double getEase()
-	{
-		return ease;
-	}
+    /**
+     * Returns the easing for the movements.
+     */
+    public double getEase() {
+        return ease;
+    }
 
-	/**
-	 * Sets the easing for the movements.
-	 */
-	public void setEase(double value)
-	{
-		ease = value;
-	}
+    /**
+     * Sets the easing for the movements.
+     */
+    public void setEase(double value) {
+        ease = value;
+    }
 
-	/**
-	 * Optional array of cells to be animated. If this is not specified
-	 * then all cells are checked and animated if they have been moved
-	 * in the current transaction.
-	 */
-	public void setCells(Object[] value)
-	{
-		cells = value;
-	}
+    /**
+     * Optional array of cells to be animated. If this is not specified
+     * then all cells are checked and animated if they have been moved
+     * in the current transaction.
+     */
+    public void setCells(Object[] value) {
+        cells = value;
+    }
 
-	/**
-	 * Animation step.
-	 */
-	public void updateAnimation()
-	{
-		super.updateAnimation();
-		preview = new mxCellStatePreview(graphComponent, false);
+    /**
+     * Animation step.
+     */
+    public void updateAnimation() {
+        super.updateAnimation();
+        preview = new mxCellStatePreview(graphComponent, false);
 
-		if (cells != null)
-		{
-			// Animates the given cells individually without recursion
-			for (Object cell : cells)
-			{
-				animateCell(cell, preview, false);
-			}
-		}
-		else
-		{
-			// Animates all changed cells by using recursion to find
-			// the changed cells but not for the animation itself
-			Object root = graphComponent.getGraph().getModel().getRoot();
-			animateCell(root, preview, true);
-		}
+        if (cells != null) {
+            // Animates the given cells individually without recursion
+            for (Object cell : cells) {
+                animateCell(cell, preview, false);
+            }
+        } else {
+            // Animates all changed cells by using recursion to find
+            // the changed cells but not for the animation itself
+            Object root = graphComponent.getGraph().getModel().getRoot();
+            animateCell(root, preview, true);
+        }
 
-		show(preview);
+        show(preview);
 
-		if (preview.isEmpty() || step++ >= steps)
-		{
-			stopAnimation();
-		}
-	};
+        if (preview.isEmpty() || step++ >= steps) {
+            stopAnimation();
+        }
+    }
 
-	/**
-	 * 
-	 */
-	public void stopAnimation()
-	{
-		graphComponent.getGraph().getView().revalidate();
-		super.stopAnimation();
+    ;
 
-		preview = null;
+    /**
+     *
+     */
+    public void stopAnimation() {
+        graphComponent.getGraph().getView().revalidate();
+        super.stopAnimation();
 
-		if (dirty != null)
-		{
-			graphComponent.getGraphControl().repaint(dirty.getRectangle());
-		}
-	}
+        preview = null;
 
-	/**
-	 * Shows the changes in the given mxCellStatePreview.
-	 */
-	protected void show(mxCellStatePreview preview)
-	{
-		if (dirty != null)
-		{
-			graphComponent.getGraphControl().repaint(dirty.getRectangle());
-		}
-		else
-		{
-			graphComponent.getGraphControl().repaint();
-		}
+        if (dirty != null) {
+            graphComponent.getGraphControl().repaint(dirty.getRectangle());
+        }
+    }
 
-		dirty = preview.show();
+    /**
+     * Shows the changes in the given mxCellStatePreview.
+     */
+    protected void show(mxCellStatePreview preview) {
+        if (dirty != null) {
+            graphComponent.getGraphControl().repaint(dirty.getRectangle());
+        } else {
+            graphComponent.getGraphControl().repaint();
+        }
 
-		if (dirty != null)
-		{
-			graphComponent.getGraphControl().repaint(dirty.getRectangle());
-		}
-	}
+        dirty = preview.show();
 
-	/**
-	 * Animates the given cell state using moveState.
-	 */
-	protected void animateCell(Object cell, mxCellStatePreview move,
-			boolean recurse)
-	{
-		mxGraph graph = graphComponent.getGraph();
-		mxCellState state = graph.getView().getState(cell);
-		mxPoint delta = null;
+        if (dirty != null) {
+            graphComponent.getGraphControl().repaint(dirty.getRectangle());
+        }
+    }
 
-		if (state != null)
-		{
-			// Moves the animated state from where it will be after the model
-			// change by subtracting the given delta vector from that location
-			delta = getDelta(state);
+    /**
+     * Animates the given cell state using moveState.
+     */
+    protected void animateCell(Object cell, mxCellStatePreview move,
+                               boolean recurse) {
+        mxGraph graph = graphComponent.getGraph();
+        mxCellState state = graph.getView().getState(cell);
+        mxPoint delta = null;
 
-			if (graph.getModel().isVertex(cell)
-					&& (delta.getX() != 0 || delta.getY() != 0))
-			{
-				mxPoint translate = graph.getView().getTranslate();
-				double scale = graph.getView().getScale();
+        if (state != null) {
+            // Moves the animated state from where it will be after the model
+            // change by subtracting the given delta vector from that location
+            delta = getDelta(state);
 
-				// FIXME: Something wrong with the scale
-				delta.setX(delta.getX() + translate.getX() * scale);
-				delta.setY(delta.getY() + translate.getY() * scale);
+            if (graph.getModel().isVertex(cell)
+                    && (delta.getX() != 0 || delta.getY() != 0)) {
+                mxPoint translate = graph.getView().getTranslate();
+                double scale = graph.getView().getScale();
 
-				move.moveState(state, -delta.getX() / ease, -delta.getY()
-						/ ease);
-			}
-		}
+                // FIXME: Something wrong with the scale
+                delta.setX(delta.getX() + translate.getX() * scale);
+                delta.setY(delta.getY() + translate.getY() * scale);
 
-		if (recurse && !stopRecursion(state, delta))
-		{
-			int childCount = graph.getModel().getChildCount(cell);
+                move.moveState(state, -delta.getX() / ease, -delta.getY()
+                        / ease);
+            }
+        }
 
-			for (int i = 0; i < childCount; i++)
-			{
-				animateCell(graph.getModel().getChildAt(cell, i), move, recurse);
-			}
-		}
-	}
+        if (recurse && !stopRecursion(state, delta)) {
+            int childCount = graph.getModel().getChildCount(cell);
 
-	/**
-	 * Returns true if the animation should not recursively find more
-	 * deltas for children if the given parent state has been animated.
-	 */
-	protected boolean stopRecursion(mxCellState state, mxPoint delta)
-	{
-		return delta != null && (delta.getX() != 0 || delta.getY() != 0);
-	}
+            for (int i = 0; i < childCount; i++) {
+                animateCell(graph.getModel().getChildAt(cell, i), move, recurse);
+            }
+        }
+    }
 
-	/**
-	 * Returns the vector between the current rendered state and the future
-	 * location of the state after the display will be updated.
-	 */
-	protected mxPoint getDelta(mxCellState state)
-	{
-		mxGraph graph = graphComponent.getGraph();
-		mxPoint origin = getOriginForCell(state.getCell());
-		mxPoint translate = graph.getView().getTranslate();
-		double scale = graph.getView().getScale();
-		mxPoint current = new mxPoint(state.getX() / scale - translate.getX(),
-				state.getY() / scale - translate.getY());
+    /**
+     * Returns true if the animation should not recursively find more
+     * deltas for children if the given parent state has been animated.
+     */
+    protected boolean stopRecursion(mxCellState state, mxPoint delta) {
+        return delta != null && (delta.getX() != 0 || delta.getY() != 0);
+    }
 
-		return new mxPoint((origin.getX() - current.getX()) * scale, (origin
-				.getY() - current.getY())
-				* scale);
-	}
+    /**
+     * Returns the vector between the current rendered state and the future
+     * location of the state after the display will be updated.
+     */
+    protected mxPoint getDelta(mxCellState state) {
+        mxGraph graph = graphComponent.getGraph();
+        mxPoint origin = getOriginForCell(state.getCell());
+        mxPoint translate = graph.getView().getTranslate();
+        double scale = graph.getView().getScale();
+        mxPoint current = new mxPoint(state.getX() / scale - translate.getX(),
+                state.getY() / scale - translate.getY());
 
-	/**
-	 * Returns the top, left corner of the given cell.
-	 */
-	protected mxPoint getOriginForCell(Object cell)
-	{
-		mxPoint result = origins.get(cell);
+        return new mxPoint((origin.getX() - current.getX()) * scale, (origin
+                .getY() - current.getY())
+                * scale);
+    }
 
-		if (result == null)
-		{
-			mxGraph graph = graphComponent.getGraph();
+    /**
+     * Returns the top, left corner of the given cell.
+     */
+    protected mxPoint getOriginForCell(Object cell) {
+        mxPoint result = origins.get(cell);
 
-			if (cell != null)
-			{
-				result = new mxPoint(getOriginForCell(graph.getModel()
-						.getParent(cell)));
-				mxGeometry geo = graph.getCellGeometry(cell);
+        if (result == null) {
+            mxGraph graph = graphComponent.getGraph();
 
-				// TODO: Handle offset, relative geometries etc
-				if (geo != null)
-				{
-					result.setX(result.getX() + geo.getX());
-					result.setY(result.getY() + geo.getY());
-				}
-			}
+            if (cell != null) {
+                result = new mxPoint(getOriginForCell(graph.getModel()
+                        .getParent(cell)));
+                mxGeometry geo = graph.getCellGeometry(cell);
 
-			if (result == null)
-			{
-				mxPoint t = graph.getView().getTranslate();
-				result = new mxPoint(-t.getX(), -t.getY());
-			}
+                // TODO: Handle offset, relative geometries etc
+                if (geo != null) {
+                    result.setX(result.getX() + geo.getX());
+                    result.setY(result.getY() + geo.getY());
+                }
+            }
 
-			origins.put(cell, result);
-		}
+            if (result == null) {
+                mxPoint t = graph.getView().getTranslate();
+                result = new mxPoint(-t.getX(), -t.getY());
+            }
 
-		return result;
-	}
+            origins.put(cell, result);
+        }
 
-	/**
-	 *
-	 */
-	public void paint(Graphics g)
-	{
-		if (preview != null)
-		{
-			preview.paint(g);
-		}
-	}
+        return result;
+    }
+
+    /**
+     *
+     */
+    public void paint(Graphics g) {
+        if (preview != null) {
+            preview.paint(g);
+        }
+    }
 
 }

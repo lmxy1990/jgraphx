@@ -18,36 +18,34 @@
  */
 package com.mxgraph.util.svg;
 
-import java.awt.Shape;
+import java.awt.*;
 
 /**
  * This class produces a polygon shape from a reader.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
  */
-public class AWTPolygonProducer extends AWTPolylineProducer
-{
-	/**
-	 * Utility method for creating an ExtendedGeneralPath.
-	 * @param text The text representation of the path specification.
-	 * @param wr The winding rule to use for creating the path.
-	 */
-	public static Shape createShape(String text, int wr) throws ParseException
-	{
-		AWTPolygonProducer ph = new AWTPolygonProducer();
+public class AWTPolygonProducer extends AWTPolylineProducer {
+    /**
+     * Utility method for creating an ExtendedGeneralPath.
+     *
+     * @param text The text representation of the path specification.
+     * @param wr   The winding rule to use for creating the path.
+     */
+    public static Shape createShape(String text, int wr) throws ParseException {
+        AWTPolygonProducer ph = new AWTPolygonProducer();
 
-		ph.setWindingRule(wr);
-		PointsParser p = new PointsParser(ph);
-		p.parse(text);
+        ph.setWindingRule(wr);
+        PointsParser p = new PointsParser(ph);
+        p.parse(text);
 
-		return ph.getShape();
-	}
+        return ph.getShape();
+    }
 
-	/**
-	 * Implements {@link PointsHandler#endPoints()}.
-	 */
-	public void endPoints() throws ParseException
-	{
-		path.closePath();
-	}
+    /**
+     * Implements {@link PointsHandler#endPoints()}.
+     */
+    public void endPoints() throws ParseException {
+        path.closePath();
+    }
 }

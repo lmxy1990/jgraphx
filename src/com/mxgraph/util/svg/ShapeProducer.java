@@ -18,29 +18,29 @@
  */
 package com.mxgraph.util.svg;
 
-import java.awt.Shape;
+import java.awt.*;
 
 /**
  * This interface represents objects which creates Shape objects.
  *
  * @author <a href="mailto:stephane@hillion.org">Stephane Hillion</a>
  */
-public interface ShapeProducer
-{
-	/**
-	 * Returns the Shape object initialized during the last parsing.
-	 * @return the shape or null if this handler has not been used to
-	 *         parse a path.
-	 */
-	Shape getShape();
+public interface ShapeProducer {
+    /**
+     * Returns the Shape object initialized during the last parsing.
+     *
+     * @return the shape or null if this handler has not been used to
+     * parse a path.
+     */
+    Shape getShape();
 
-	/**
-	 * Sets the winding rule used to construct the path.
-	 */
-	void setWindingRule(int i);
+    /**
+     * Sets the winding rule used to construct the path.
+     */
+    void setWindingRule(int i);
 
-	/**
-	 * Returns the current winding rule.
-	 */
-	int getWindingRule();
+    /**
+     * Returns the current winding rule.
+     */
+    int getWindingRule();
 }

@@ -380,7 +380,11 @@ public class mxEdgeHandler extends mxCellHandler {
      *
      */
     public void mouseDragged(MouseEvent e) {
-        if (!e.isConsumed() && first != null && cloneEnabled) {
+        if (!graphComponent.getGraph().isAllowDanglingEdges()) {
+            e.consume();
+            return;
+        }
+        if (!e.isConsumed() && first != null) {
             gridEnabledEvent = graphComponent.isGridEnabledEvent(e);
             constrainedEvent = graphComponent.isConstrainedEvent(e);
 
