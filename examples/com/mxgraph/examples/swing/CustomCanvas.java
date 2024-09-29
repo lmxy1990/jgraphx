@@ -1,140 +1,120 @@
 package com.mxgraph.examples.swing;
 
-import javax.swing.BorderFactory;
-import javax.swing.CellRendererPane;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.border.BevelBorder;
-
 import com.mxgraph.canvas.mxICanvas;
 import com.mxgraph.canvas.mxImageCanvas;
-import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.handler.mxRubberband;
+import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.view.mxInteractiveCanvas;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 
-public class CustomCanvas extends JFrame
-{
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -844106998814982739L;
+public class CustomCanvas extends JFrame {
 
-	public CustomCanvas()
-	{
-		super("Custom Canvas");
+    /**
+     *
+     */
+    private static final long serialVersionUID = -844106998814982739L;
 
-		// Demonstrates the use of a Swing component for rendering vertices.
-		// Note: Use the heavyweight feature to allow for event handling in
-		// the Swing component that is used for rendering the vertex.
+    public CustomCanvas() {
+        super("Custom Canvas");
 
-		mxGraph graph = new mxGraph()
-		{
-			public void drawState(mxICanvas canvas, mxCellState state,
-					boolean drawLabel)
-			{
-				String label = (drawLabel) ? state.getLabel() : "";
+        // Demonstrates the use of a Swing component for rendering vertices.
+        // Note: Use the heavyweight feature to allow for event handling in
+        // the Swing component that is used for rendering the vertex.
 
-				// Indirection for wrapped swing canvas inside image canvas (used for creating
-				// the preview image when cells are dragged)
-				if (getModel().isVertex(state.getCell())
-						&& canvas instanceof mxImageCanvas
-						&& ((mxImageCanvas) canvas)
-								.getGraphicsCanvas() instanceof SwingCanvas)
-				{
-					((SwingCanvas) ((mxImageCanvas) canvas).getGraphicsCanvas())
-							.drawVertex(state, label);
-				}
-				// Redirection of drawing vertices in SwingCanvas
-				else if (getModel().isVertex(state.getCell())
-						&& canvas instanceof SwingCanvas)
-				{
-					((SwingCanvas) canvas).drawVertex(state, label);
-				}
-				else
-				{
-					super.drawState(canvas, state, drawLabel);
-				}
-			}
-		};
+        mxGraph graph = new mxGraph() {
+            public void drawState(mxICanvas canvas, mxCellState state,
+                                  boolean drawLabel) {
+                String label = (drawLabel) ? state.getLabel() : "";
 
-		Object parent = graph.getDefaultParent();
+                // Indirection for wrapped swing canvas inside image canvas (used for creating
+                // the preview image when cells are dragged)
+                if (getModel().isVertex(state.getCell())
+                        && canvas instanceof mxImageCanvas
+                        && ((mxImageCanvas) canvas)
+                        .getGraphicsCanvas() instanceof SwingCanvas) {
+                    ((SwingCanvas) ((mxImageCanvas) canvas).getGraphicsCanvas())
+                            .drawVertex(state, label);
+                }
+                // Redirection of drawing vertices in SwingCanvas
+                else if (getModel().isVertex(state.getCell())
+                        && canvas instanceof SwingCanvas) {
+                    ((SwingCanvas) canvas).drawVertex(state, label);
+                } else {
+                    super.drawState(canvas, state, drawLabel);
+                }
+            }
+        };
 
-		graph.getModel().beginUpdate();
-		try
-		{
+        Object parent = graph.getDefaultParent();
 
-			Object v1 = graph.insertVertex(parent, null, "Hello", 20, 20, 80,
-					30);
-			Object v2 = graph.insertVertex(parent, null, "World!", 240, 150, 80,
-					30);
-			graph.insertEdge(parent, null, "Edge", v1, v2);
-		}
-		finally
-		{
-			graph.getModel().endUpdate();
-		}
+        graph.getModel().beginUpdate();
+        try {
 
-		mxGraphComponent graphComponent = new mxGraphComponent(graph)
-		{
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 4683716829748931448L;
+            Object v1 = graph.insertVertex(parent, null, "Hello", 20, 20, 80,
+                    30);
+            Object v2 = graph.insertVertex(parent, null, "World!", 240, 150, 80,
+                    30);
+            graph.insertEdge(parent, null, "Edge", v1, v2);
+        } finally {
+            graph.getModel().endUpdate();
+        }
 
-			public mxInteractiveCanvas createCanvas()
-			{
-				return new SwingCanvas(this);
-			}
-		};
+        mxGraphComponent graphComponent = new mxGraphComponent(graph) {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 4683716829748931448L;
 
-		getContentPane().add(graphComponent);
+            public mxInteractiveCanvas createCanvas() {
+                return new SwingCanvas(this);
+            }
+        };
 
-		// Adds rubberband selection
-		new mxRubberband(graphComponent);
-	}
+        getContentPane().add(graphComponent);
 
-	public class SwingCanvas extends mxInteractiveCanvas
-	{
-		protected CellRendererPane rendererPane = new CellRendererPane();
+        // Adds rubberband selection
+        new mxRubberband(graphComponent);
+    }
 
-		protected JLabel vertexRenderer = new JLabel();
+    public class SwingCanvas extends mxInteractiveCanvas {
+        protected CellRendererPane rendererPane = new CellRendererPane();
 
-		protected mxGraphComponent graphComponent;
+        protected JLabel vertexRenderer = new JLabel();
 
-		public SwingCanvas(mxGraphComponent graphComponent)
-		{
-			this.graphComponent = graphComponent;
+        protected mxGraphComponent graphComponent;
 
-			vertexRenderer.setBorder(
-					BorderFactory.createBevelBorder(BevelBorder.RAISED));
-			vertexRenderer.setHorizontalAlignment(JLabel.CENTER);
-			vertexRenderer
-					.setBackground(graphComponent.getBackground().darker());
-			vertexRenderer.setOpaque(true);
-		}
+        public SwingCanvas(mxGraphComponent graphComponent) {
+            this.graphComponent = graphComponent;
 
-		public void drawVertex(mxCellState state, String label)
-		{
-			vertexRenderer.setText(label);
-			// TODO: Configure other properties...
+            vertexRenderer.setBorder(
+                    BorderFactory.createBevelBorder(BevelBorder.RAISED));
+            vertexRenderer.setHorizontalAlignment(JLabel.CENTER);
+            vertexRenderer
+                    .setBackground(graphComponent.getBackground().darker());
+            vertexRenderer.setOpaque(true);
+        }
 
-			rendererPane.paintComponent(g, vertexRenderer, graphComponent,
-					(int) (state.getX() + translate.getX()),
-					(int) (state.getY() + translate.getY()),
-					(int) state.getWidth(), (int) state.getHeight(), true);
-		}
+        public void drawVertex(mxCellState state, String label) {
+            vertexRenderer.setText(label);
+            // TODO: Configure other properties...
 
-	}
+            rendererPane.paintComponent(g, vertexRenderer, graphComponent,
+                    (int) (state.getX() + translate.getX()),
+                    (int) (state.getY() + translate.getY()),
+                    (int) state.getWidth(), (int) state.getHeight(), true);
+        }
 
-	public static void main(String[] args)
-	{
-		CustomCanvas frame = new CustomCanvas();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 320);
-		frame.setVisible(true);
-	}
+    }
+
+    public static void main(String[] args) {
+        CustomCanvas frame = new CustomCanvas();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 320);
+        frame.setVisible(true);
+    }
 
 }
